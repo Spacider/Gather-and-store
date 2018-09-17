@@ -22,42 +22,70 @@ public final class GatherImpl implements Gather {
 
     private static List<Environment> environmentList = new ArrayList <>() ;
 
-    public void init(Properties properties) {
+    private volatile static long position = 0;
 
+    static {
+        RandomAccessFile raf = null;
+        File file = new File("/Users/wjh/Desktop/FirstProject/src/radwtmp");
+        try {
+            raf = new RandomAccessFile(file,"r");
+            position = getPostion(raf);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void init(Properties properties) {
+    }
+
+    public static void main(String[] args) {
+        new GatherImpl().gather();
     }
 
     public Collection<Environment> gather(){
-        FileReader fr = null;
+        RandomAccessFile raf = null;
         BufferedReader br = null;
         Environment envir = new Environment();
 
         try {
             File file = new File("/Users/wjh/Desktop/FirstProject/src/radwtmp");
-            file.createNewFile();
-            fr = new FileReader(file);
-            br = new BufferedReader(fr);
-            String str = null;
-            while ( (str = br.readLine() )!= null){
+//            long FilePotionLong = Long.parseLong(FilePostion);
+
+            // 如果文件不存在，就报错
+            if (!file.exists()){
+                LOGGER.error("can not find the file : radwtmp! ");
+                // 则创建一个新的文件
+                file.createNewFile();
+            }else {
+                raf = new RandomAccessFile(file,"r");
+
+                raf.seek(position);
+
+                String str = null;
+                while ((str = raf.readLine()) != null) {
 //                System.out.println(str);
-                String[] stringList = str.split("\\|");
+                    String[] stringList = str.split("\\|");
 //                System.out.println(Arrays.toString(stringList));
 //                [100|101|2|16|1|3|5d606f7802|1|2018-09-15 11:17:13.526]
-//                System.out.println(Arrays.toString(stringList));
-                getenv(stringList);
-            }
+//                    System.out.println(Arrays.toString(stringList));
 
-            file.delete();
+                    getenv(stringList);
+                }
 
-            for (Environment environment : environmentList){
+                position = getPostion(raf);
+
+                System.out.println("position : " + position);
+
+                for (Environment environment : environmentList) {
                     System.out.println(environment);
+                }
             }
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtil.close(fr,br);
+            IOUtil.close(raf,br);
         }
 
         List<Environment> environmentList1 = new LinkedList <>(environmentList);
@@ -65,8 +93,18 @@ public final class GatherImpl implements Gather {
         return environmentList1;
     }
 
+    public static Long getPostion(RandomAccessFile raf){
+        long length = 0;
+        try {
+            length =  raf.length();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return length;
+    }
+
     private static void getenv(String[] stringList){
-        //   System.out.println(Arrays.toString(stringList));
+           System.out.println(Arrays.toString(stringList));
         //   [100|101|2|16|1|3|5d606f7802|1|2018-09-15 11:17:13.526]
         String sensorAddress = stringList[3];
         int FinalDate = 0;
@@ -92,16 +130,18 @@ public final class GatherImpl implements Gather {
             }
         }else if (sensorAddress.equals("256")){
             if (stringList[6].length() != 6) {
-                LOGGER.error("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
+                LOGGER.error("得到的数据为脏数据, 光照错误数据:" + stringList[6]);
             }else{
                 environmentList.add(SetNameAndData(stringList, "光照强度", FinalDate));
             }
         }else if (sensorAddress.equals("1280")){
             if (stringList[6].length() != 6) {
-                LOGGER.error("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
+                LOGGER.error("得到的数据为脏数据, 二氧化碳错误数据:" + stringList[6]);
             }else{
                 environmentList.add(SetNameAndData(stringList, "二氧化碳", FinalDate));
             }
+        }else{
+            LOGGER.error("得到的数据错误");
         }
     }
 

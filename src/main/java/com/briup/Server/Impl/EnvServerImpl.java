@@ -63,7 +63,7 @@ class EnvServerThread extends Thread{
                 System.out.println(environmentList);
 
 
-
+                // 数据库入库操作
                 DBStoreImpl dbStore = new DBStoreImpl();
                 dbStore.saveEnvToDB(environmentList);
 

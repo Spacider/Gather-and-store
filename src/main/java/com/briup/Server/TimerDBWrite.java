@@ -22,7 +22,7 @@ public class TimerDBWrite {
                 // 定时器调用的代码
                 ClientMain.ClientSendMain();
             }
-        },5100,10000);
+        },5100,15000);
 
     }
 
