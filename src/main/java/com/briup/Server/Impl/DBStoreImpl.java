@@ -3,6 +3,8 @@ package com.briup.Server.Impl;
 import com.briup.Bean.Environment;
 import com.briup.Server.DBStore;
 import com.briup.Server.helper.DBhelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -14,34 +16,40 @@ import java.util.Properties;
  * 入库模块实现
  */
 public class DBStoreImpl implements DBStore {
+
+    public final static Logger LOGGER = LoggerFactory.getLogger(DBStoreImpl.class);
+
     public void saveEnvToDB(Collection<Environment> col) {
 
         System.out.println(col.size());
+        if (col != null) {
+            for (Environment environment : col) {
 
-        for (Environment environment : col) {
+                DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+                Timestamp timestamp = environment.getGather_date();
+                String tsStr = sdf.format(timestamp);
+                // gather_date=2018-09-15 11:17:48.0
 
-            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-            Timestamp timestamp = environment.getGather_date();
-            String tsStr = sdf.format(timestamp);
-            // gather_date=2018-09-15 11:17:48.0
+                String[] time = tsStr.split("\\-");
+                String day = time[2];
 
-            String [] time = tsStr.split("\\-");
-            String day = time[2];
-
-            String sql = "insert into T_DETAIL_"+day
-                        +" values("
-                        +"'"+environment.getSrcID()+"',"
-                        +"'"+environment.getDstID()+"',"
-                        +"'"+environment.getDevID()+"',"
-                        +"'"+environment.getSensorAddress()+"',"
-                        +environment.getCount()+","
-                        +environment.getCmd()+","
-                        +"'"+environment.getData()+"')";
+                String sql = "insert into T_DETAIL_" + day
+                        + " values("
+                        + "'" + environment.getSrcID() + "',"
+                        + "'" + environment.getDstID() + "',"
+                        + "'" + environment.getDevID() + "',"
+                        + "'" + environment.getSensorAddress() + "',"
+                        + environment.getCount() + ","
+                        + environment.getCmd() + ","
+                        + "'" + environment.getData() + "')";
 
 //            System.out.println(sql);
 
+                DBhelper.InsertIntoDB(sql);
+                LOGGER.info("insert into database successful");
+            }
+        }else {
 
-            DBhelper.InsertIntoDB(sql);
         }
     }
 

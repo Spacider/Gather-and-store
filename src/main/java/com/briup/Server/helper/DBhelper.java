@@ -26,7 +26,6 @@ public class DBhelper {
 
             DATA_SOURCE = new BasicDataSource();
             DATA_SOURCE = BasicDataSourceFactory.createDataSource(properties);
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -44,14 +43,6 @@ public class DBhelper {
             connection = DATA_SOURCE.getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
-        }finally {
-            try {
-                if (connection != null){
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return connection;
     }
@@ -75,10 +66,10 @@ public class DBhelper {
         }
     }
 
-//    public static void main(String[] args) {
-//        for (int i = 0 ; i < 1000 ; i++) {
-//            System.out.println(i + "--"+getConnction());
-//        }
-//    }
+    public static void main(String[] args) {
+        for (int i = 0 ; i < 1000 ; i++) {
+            System.out.println(i + "--"+getConnction());
+        }
+    }
 
 }

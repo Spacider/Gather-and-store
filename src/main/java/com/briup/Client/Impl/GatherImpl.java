@@ -1,14 +1,10 @@
 package com.briup.Client.Impl;
 
 import com.briup.Bean.Environment;
-import com.briup.Client.EnvClient;
 import com.briup.Client.Gather;
 import com.briup.util.Impl.IOUtil;
-import com.sun.tools.doclint.Env;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.Timestamp;
@@ -21,6 +17,8 @@ import java.util.*;
  * 采集模块实现
  */
 public final class GatherImpl implements Gather {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GatherImpl.class);
 
     private static List<Environment> environmentList = new ArrayList <>() ;
 
@@ -35,6 +33,7 @@ public final class GatherImpl implements Gather {
 
         try {
             File file = new File("/Users/wjh/Desktop/FirstProject/src/radwtmp");
+            file.createNewFile();
             fr = new FileReader(file);
             br = new BufferedReader(fr);
             String str = null;
@@ -69,29 +68,40 @@ public final class GatherImpl implements Gather {
     private static void getenv(String[] stringList){
         //   System.out.println(Arrays.toString(stringList));
         //   [100|101|2|16|1|3|5d606f7802|1|2018-09-15 11:17:13.526]
-        Environment envir = new Environment();
         String sensorAddress = stringList[3];
         int FinalDate = 0;
+
         FinalDate = Integer.parseInt(stringList[6].substring(0, 4), 16);
 
         if (sensorAddress.equals("16")) {
-            /**
-             * 温度􏲅􏲆:value(int) float Temperature = ((float)value*0.00268127)- 46.85;
-             * 􏲌􏲆湿度:value(int) float Humidity = ((float)value*0.00190735)-6;
-             */
-            // 生成温度对象，并添加到 list 中
-            float Temperature = (float) ((FinalDate * 0.00268127) - 46.85);
-            environmentList.add(SetNameAndData(stringList,"温度",Temperature));
+            if (stringList[6].length() != 10){
+                LOGGER.error("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
+            }else {
+                /**
+                 * 温度􏲅􏲆:value(int) float Temperature = ((float)value*0.00268127)- 46.85;
+                 * 􏲌􏲆湿度:value(int) float Humidity = ((float)value*0.00190735)-6;
+                 */
+                // 生成温度对象，并添加到 list 中
+                float Temperature = (float) ((FinalDate * 0.00268127) - 46.85);
+                environmentList.add(SetNameAndData(stringList, "温度", Temperature));
 
-            // 生成湿度对象，并添加到 list 中
-            FinalDate = Integer.parseInt(stringList[6].substring(4, 8), 16);
-            float Humidity = (float) ((FinalDate * 0.00190735) - 6);
-            environmentList.add( SetNameAndData(stringList,"湿度",Humidity));
-
+                // 生成湿度对象，并添加到 list 中
+                FinalDate = Integer.parseInt(stringList[6].substring(4, 8), 16);
+                float Humidity = (float) ((FinalDate * 0.00190735) - 6);
+                environmentList.add(SetNameAndData(stringList, "湿度", Humidity));
+            }
         }else if (sensorAddress.equals("256")){
-            environmentList.add( SetNameAndData(stringList,"光照强度",FinalDate));
+            if (stringList[6].length() != 6) {
+                LOGGER.error("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
+            }else{
+                environmentList.add(SetNameAndData(stringList, "光照强度", FinalDate));
+            }
         }else if (sensorAddress.equals("1280")){
-            environmentList.add( SetNameAndData(stringList,"二氧化碳",FinalDate));
+            if (stringList[6].length() != 6) {
+                LOGGER.error("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
+            }else{
+                environmentList.add(SetNameAndData(stringList, "二氧化碳", FinalDate));
+            }
         }
     }
 

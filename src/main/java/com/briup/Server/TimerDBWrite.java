@@ -1,9 +1,6 @@
 package com.briup.Server;
 
 import com.briup.Client.ClientMain;
-import com.briup.Data.Client.CarbonDioxideClient;
-import com.briup.Data.Client.DataClient;
-import com.briup.Data.Client.GuangClient;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,7 +22,7 @@ public class TimerDBWrite {
                 // 定时器调用的代码
                 ClientMain.ClientSendMain();
             }
-        },5100,15000);
+        },5100,10000);
 
     }
 
