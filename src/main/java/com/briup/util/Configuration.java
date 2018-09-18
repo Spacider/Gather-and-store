@@ -33,7 +33,7 @@ public interface Configuration {
     /**
      * 获取日志模块对象
      */
-    Log getLog();
+//    Log getLog();
 
     /**
      * 获取备份模块对象

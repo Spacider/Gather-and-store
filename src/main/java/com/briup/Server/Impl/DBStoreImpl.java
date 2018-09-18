@@ -3,7 +3,13 @@ package com.briup.Server.Impl;
 import com.briup.Bean.Environment;
 import com.briup.Server.DBStore;
 import com.briup.Server.helper.DBhelper;
+import com.briup.util.Impl.BackUpImpl;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,23 +27,69 @@ public class DBStoreImpl implements DBStore {
      * @param col
      */
     public void saveEnvToDB(Collection<Environment> col) {
+        Connection connection = DBhelper.getConnction();
+        PreparedStatement ps = null;
 
         System.out.println(col.size());
-        for (Environment environment : col) {
-            DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-            Timestamp timestamp = environment.getGather_date();
-            String tsStr = sdf.format(timestamp);
-            // gather_date=2018-09-15 11:17:48.0
 
-            String[] time = tsStr.split("\\-");
-            String day = time[2];
+        try {
+            for (Environment environment : col) {
+                DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+                Timestamp timestamp = environment.getGather_date();
+                String tsStr = sdf.format(timestamp);
+                // gather_date=2018-09-15 11:17:48.0
 
-            // 拼接 sql 语句
-            String sql = "insert into T_DETAIL_" + day
-                    + " values(?,?,?,?,?,?,?,?,?,?)";
-            System.out.println(sql);
-            DBhelper.InsertIntoDB(sql, environment);
+                String[] time = tsStr.split("\\-");
+                String day = time[2];
+
+                // 拼接 sql 语句
+                String sql = "insert into T_DETAIL_" + day
+                        + " values(?,?,?,?,?,?,?,?,?,?)";
+                System.out.println(sql);
+//            DBhelper.InsertIntoDB(sql, environment);
+
+                ps = connection.prepareStatement(sql);
+
+                ps.setString(1,environment.getName());
+                ps.setString(2,environment.getSrcID());
+                ps.setString(3,environment.getDstID());
+                ps.setString(4,environment.getDevID());
+                ps.setString(5,environment.getSensorAddress());
+                ps.setInt(6,environment.getCount());
+                ps.setInt(7,environment.getCmd());
+                ps.setString(8,environment.getData()+"");
+                ps.setInt(9,environment.getStatus());
+                ps.setTimestamp(10,environment.getGather_date());
+
+                ps.execute();
+
+            }
+        } catch (Exception e){
+//            try {
+//                BackUpImpl backUp = new BackUpImpl();
+//                String path = "/Users/wjh/Desktop/FirstProject/src/BackUptmp";
+//                File file = new File(path);
+//                if (!file.exists()){
+//                    file.createNewFile();
+//                }
+//                backUp.storeEnvs(col,path);
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
+            e.printStackTrace();
+        } finally {
+            try {
+                if (connection != null){
+                    connection.close();
+                }
+                if (ps != null){
+                    ps.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
     /**

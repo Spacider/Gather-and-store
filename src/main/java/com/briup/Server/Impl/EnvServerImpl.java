@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -58,11 +59,8 @@ class EnvServerThread extends Thread{
             try {
                 is = socket.getInputStream();
                 ois = new ObjectInputStream(is);
-                Environment obj = null;
-                while ((obj = (Environment) ois.readObject()) != null) {
-                    // 一旦读取到一个对象，就将其塞入 list 集合中
-                    environmentList.add(obj);
-                }
+
+                environmentList = (List <Environment>) ois.readObject();
 
                 System.out.println(environmentList);
 
@@ -71,7 +69,9 @@ class EnvServerThread extends Thread{
                 dbStore.saveEnvToDB(environmentList);
 
 
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
                 IOUtil.close(is,ois,socket);

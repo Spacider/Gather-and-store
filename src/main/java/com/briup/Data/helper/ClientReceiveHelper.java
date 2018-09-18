@@ -40,7 +40,6 @@ public final class ClientReceiveHelper {
         PrintWriter pw = null;
         InputStream is = null;
         BufferedReader br = null;
-        ByteArrayInputStream bais = null;
         Socket socket = null;
         try {
             // 填入树莓派的 host 和 port
@@ -73,7 +72,7 @@ public final class ClientReceiveHelper {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtil.close(br,is,pw,os,bais,socket);
+            IOUtil.close(br,is,pw,os,socket);
         }
     }
 }

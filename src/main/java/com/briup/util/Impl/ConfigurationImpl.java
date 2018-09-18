@@ -39,10 +39,10 @@ public class ConfigurationImpl implements Configuration {
         return new DBStoreImpl();
     }
 
-    @Override
-    public Log getLog() {
-        return new LogImpl();
-    }
+//    @Override
+//    public Log getLog() {
+//        return new LogImpl();
+//    }
 
     @Override
     public BackUp getBackUp() {

@@ -57,43 +57,9 @@ public class DBhelper {
     }
 
     /**
-     * 实现插入方法
-     * @param sql 执行的 sql 语句
+     * 处理 SQL 语句方法
+     * @param sql
      */
-    public static void InsertIntoDB(String sql, Environment environment){
-        Connection connection = getConnction();
-        PreparedStatement ps = null;
-        try {
-            ps = connection.prepareStatement(sql);
-
-            ps.setString(1,environment.getName());
-            ps.setString(2,environment.getSrcID());
-            ps.setString(3,environment.getDstID());
-            ps.setString(4,environment.getDevID());
-            ps.setString(5,environment.getSensorAddress());
-            ps.setInt(6,environment.getCount());
-            ps.setInt(7,environment.getCmd());
-            ps.setString(8,environment.getData()+"");
-            ps.setInt(9,environment.getStatus());
-            ps.setTimestamp(10,environment.getGather_date());
-
-            ps.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (connection != null){
-                    connection.close();
-                }
-                if (ps != null){
-                    ps.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static void ExecuteSql(String sql){
         Connection connection = getConnction();
         PreparedStatement ps = null;
