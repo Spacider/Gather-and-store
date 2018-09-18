@@ -9,7 +9,7 @@ import java.util.TimerTask;
 
 public final class TimerRunClient {
 
-    public static void runClientMain(){
+    public static void runClientMain() {
         // 构建定时器
         Timer timer = new Timer(false);
 
@@ -26,11 +26,7 @@ public final class TimerRunClient {
                 GuangClient.guangGetObj();
                 CarbonDioxideClient.CarbonDioxideGetObj();
             }
-        },0,5000);
+        }, 0, 5000);
 
     }
-
-//    public static void main(String[] args) {
-//        TimerRunClient.runClientMain();
-//    }
 }

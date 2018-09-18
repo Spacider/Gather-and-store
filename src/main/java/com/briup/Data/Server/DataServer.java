@@ -65,7 +65,7 @@ class ServerThread extends Thread{
                 while ((str = br.readLine()) != null) {
                     sb.append(str + "\r\n");
                     // 如果读取到最后一行，则退出
-                    if (str.equalsIgnoreCase("</Message>")) {
+                    if (str.trim().equals("</Message>")) {
                         break;
                     }
                 }

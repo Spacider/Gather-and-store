@@ -5,8 +5,17 @@ import com.briup.util.Impl.IOUtil;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * 封装了从树莓派取出数据的一些操作方法
+ */
 public final class ClientReceiveHelper {
 
+    /**
+     * 拼装发送的 XML 文件
+     * @param SensorAddress
+     * @param counter
+     * @return
+     */
     private final static String XmlToSend(String SensorAddress,String counter){
         String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"+
                 "<Message>\r\n"+
@@ -17,10 +26,15 @@ public final class ClientReceiveHelper {
                 "<Counter>"+counter+"</Counter>\r\n"+
                 "<Cmd>3</Cmd>\r\n"+
                 "<Status>1</Status>\r\n"+
-                "</Message>";
+                "</Message>\r\n";
         return str;
     }
 
+    /**
+     * 客户端通过 TCP/IP 来获得到树莓派所传递的数据
+      * @param SensorAddress
+     * @param counter
+     */
     public final static void ClientGetXml(String SensorAddress,int counter){
         OutputStream os = null;
         PrintWriter pw = null;
@@ -29,7 +43,10 @@ public final class ClientReceiveHelper {
         ByteArrayInputStream bais = null;
         Socket socket = null;
         try {
-            socket = new Socket("192.168.1.2", 10000);
+            // 填入树莓派的 host 和 port
+//            socket = new Socket("192.168.1.7", 10000);
+            socket = new Socket("127.0.0.1", 8888);
+            System.out.println(socket);
             synchronized (socket) {
                 os = socket.getOutputStream();
                 pw = new PrintWriter(os);
@@ -37,17 +54,14 @@ public final class ClientReceiveHelper {
                 pw.write(str.toCharArray());
                 pw.flush();
 
-                System.out.println(socket);
-
                 is = socket.getInputStream();
-
                 br = new BufferedReader(new InputStreamReader(is));
                 String Backstr = null;
                 // 拼接读取返回的 XML 文件
                 StringBuilder sb = new StringBuilder();
                 while ((Backstr = br.readLine()) != null) {
+                    // 在末尾加入 \r\n 方便观察，也方便读取
                     sb.append(Backstr + "\r\n");
-//                System.out.println(Backstr);
                     if (Backstr.trim().equals("</Message>")) {
                         break;
                     }

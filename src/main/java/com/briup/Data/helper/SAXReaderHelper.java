@@ -27,35 +27,27 @@ public final class SAXReaderHelper {
         // 把客户端传过来的 xml 转化为字符串存储
         String TotalStr = str.toString();
         byte[] TotalBytes = TotalStr.getBytes();
+        // dom4j 构建对象内填入一个 byte 类型的数组
         bais = new ByteArrayInputStream(TotalBytes);
         SAXReader reader = new SAXReader();
         Document document = null;
         String BackStr = null;
-        // 获取根节点
 
         try {
             document = reader.read(bais,"utf-8");
+            // 获取根节点
             Element Message = document.getRootElement();
             StringBuilder sb = new StringBuilder();
             // 拼接字符串
             sb.append(Message.element("SrcID").getText()+"|");
-
             sb.append(Message.element("DstID").getText()+"|");
-
             sb.append(Message.element("DevID").getText()+"|");
-
             sb.append(SensorAddress+"|");
-
             sb.append(counter+"|");
-
             sb.append(Message.element("Cmd").getText()+"|");
-
             sb.append(Message.element("Data").getText()+"|");
-
             sb.append(Message.element("Status").getText()+"|");
-
             sb.append(new Timestamp(System.currentTimeMillis()));
-
             sb.append("\r\n");
 
             System.out.println(sb);
@@ -106,15 +98,15 @@ public final class SAXReaderHelper {
             if (SensorAddress.equals("16")){
                 str = "5d606f7802";
                 BackStr = getBakXml(str);
-                System.out.println("温度湿度");
+//                System.out.println("温度湿度");
             }else if (SensorAddress.equals("256")){
                 str = "5d6002";
                 BackStr = getBakXml(str);
-                System.out.println("光照");
+//                System.out.println("光照");
             }else if (SensorAddress.equals("1280")){
                 str = "5d6002";
                 BackStr = getBakXml(str);
-                System.out.println("二氧化碳");
+//                System.out.println("二氧化碳");
             }
         } catch (DocumentException e) {
             e.printStackTrace();
@@ -125,7 +117,7 @@ public final class SAXReaderHelper {
     }
 
     /**
-     * 凭借返回的 XML
+     * 拼接返回的 XML (提供模拟的 Server 端使用)
      * @param DataStr
      * @return
      */

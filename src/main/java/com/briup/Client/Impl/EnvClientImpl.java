@@ -15,15 +15,20 @@ import java.util.Properties;
  * 客户端模块实现
  */
 public class EnvClientImpl implements EnvClient {
+    /**
+     * 发送端主函数
+     * @param col
+     */
     public void send(Collection<Environment> col) {
-
         OutputStream os = null;
         Socket socket = null;
+
         try {
             socket = new Socket("127.0.0.1",9999);
             os = socket.getOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(os);
 
+            // 运用对象流把生成的对象发给 Server 端
             for (Environment environment : col) {
                 oos.writeObject(environment);
             }

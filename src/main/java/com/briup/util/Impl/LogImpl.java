@@ -12,7 +12,6 @@ public class LogImpl implements Log {
 
     @Override
     public void debug(String msg) {
-
     }
 
     @Override
