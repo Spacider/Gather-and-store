@@ -1,7 +1,11 @@
 package com.briup.Server.Impl;
 
 import com.briup.Bean.Environment;
+import com.briup.Server.DBStore;
 import com.briup.Server.EnvServer;
+import com.briup.util.Configuration;
+import com.briup.util.ConfigurationAware;
+import com.briup.util.Impl.ConfigurationImpl;
 import com.briup.util.Impl.IOUtil;
 
 import java.io.IOException;
@@ -16,13 +20,19 @@ import java.util.Properties;
 /**
  * 服务器端模块
  */
-public class EnvServerImpl implements EnvServer {
+public class EnvServerImpl implements EnvServer ,ConfigurationAware{
 
     private int port;
+    private Configuration  configuration;
 
     public void init(Properties properties) {
         port = Integer.parseInt(properties.getProperty("port"));
     }
+
+    public void SetConfiguration(Configuration conf) {
+        this.configuration =conf;
+    }
+
 
     /**
      * 服务器接收方法
@@ -32,12 +42,11 @@ public class EnvServerImpl implements EnvServer {
 
         try {
             System.out.println(port);
-//            port = 9999;
             ServerSocket server = new ServerSocket(port);
             System.out.println(server);
             while(true){
                 socket = server.accept();
-                new EnvServerThread(socket).start();
+                new EnvServerThread(socket,configuration.getDBStore()).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,13 +55,16 @@ public class EnvServerImpl implements EnvServer {
 
 }
 
-class EnvServerThread extends Thread{
+class EnvServerThread extends Thread {
 
-    private List<Environment> environmentList = new ArrayList <>();
     private Socket socket;
+    private DBStore  dbStore;
 
-    public EnvServerThread (Socket socket){
+
+
+    public EnvServerThread (Socket socket,DBStore dbStore){
         this.socket = socket;
+        this.dbStore = dbStore;
     }
 
     @Override
@@ -64,18 +76,17 @@ class EnvServerThread extends Thread{
                 is = socket.getInputStream();
                 ois = new ObjectInputStream(is);
 
-                environmentList = (List <Environment>) ois.readObject();
+                List <Environment> environmentList = (List <Environment>) ois.readObject();
 
                 System.out.println(environmentList);
 
                 // 数据库入库操作
-                DBStoreImpl dbStore = new DBStoreImpl();
+//                ConfigurationImpl configuration = new ConfigurationImpl();
+//                dbStore  = configuration.getDBStore();
                 dbStore.saveEnvToDB(environmentList);
 
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             } finally {
                 IOUtil.close(is,ois,socket);

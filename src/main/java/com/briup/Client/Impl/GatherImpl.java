@@ -121,7 +121,7 @@ public final class GatherImpl implements Gather {
      * @param stringList 根据 radWtmp 拆分的字符串
      */
     private static void getenv(String[] stringList){
-           System.out.println(Arrays.toString(stringList));
+        System.out.println(Arrays.toString(stringList));
         //   [100|101|2|16|1|3|5d606f7802|1|2018-09-15 11:17:13.526]
         String sensorAddress = stringList[3];
         int FinalDate = 0;

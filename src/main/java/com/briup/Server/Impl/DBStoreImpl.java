@@ -21,6 +21,8 @@ import java.util.Properties;
  */
 public class DBStoreImpl implements DBStore {
 
+    private int count =1;
+
     @Override
     public void init(Properties properties) {
 
@@ -33,8 +35,8 @@ public class DBStoreImpl implements DBStore {
         Connection connection = DBhelper.getConnction();
         PreparedStatement ps = null;
 
-        System.out.println(col.size());
 
+        System.out.println(col.size());
         try {
             for (Environment environment : col) {
                 DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
@@ -48,7 +50,7 @@ public class DBStoreImpl implements DBStore {
                 // 拼接 sql 语句
                 String sql = "insert into T_DETAIL_" + day
                         + " values(?,?,?,?,?,?,?,?,?,?)";
-                System.out.println(sql);
+//                System.out.println(sql);
 //            DBhelper.InsertIntoDB(sql, environment);
 
                 ps = connection.prepareStatement(sql);
@@ -63,10 +65,17 @@ public class DBStoreImpl implements DBStore {
                 ps.setString(8,environment.getData()+"");
                 ps.setInt(9,environment.getStatus());
                 ps.setTimestamp(10,environment.getGather_date());
+                ps.addBatch();
 
-                ps.execute();
-
+                System.out.println("count:" + count);
+                if ( count % 100 == 0 ) {
+                    ps.executeBatch();
+                    System.out.println("插入数据库成功：" + count + "数据");
+//                ps.execute();
+                }
+                count ++;
             }
+            ps.executeBatch();
         } catch (Exception e){
 //            try {
 //                BackUpImpl backUp = new BackUpImpl();

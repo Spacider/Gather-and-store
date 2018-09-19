@@ -4,9 +4,10 @@
         <logFile>/Users/wjh/Desktop/FirstProject/src/radwtmp</logFile>
         <positionFile>/Users/wjh/Desktop/FirstProject/src/main/resources/FilePostion.properties</positionFile>
     </gather>
-    <EnvClient class="com.briup.Client.Impl.EnvClientImpl">
+    <EnvClient class = "com.briup.Client.Impl.EnvClientImpl">
         <host>127.0.0.1</host>
         <port>9999</port>
+        <path>/Users/wjh/Desktop/FirstProject/src/BackUptmp</path>
     </EnvClient>
     <EnvServer class="com.briup.Server.Impl.EnvServerImpl">
         <port>9999</port>
@@ -14,7 +15,6 @@
     <BackUp class="com.briup.util.Impl.BackUpImpl">
         <BackUppath>/Users/wjh/Desktop/FirstProject/src/BackUptmp</BackUppath>
     </BackUp>
-
     <DBStore class="com.briup.Server.Impl.DBStoreImpl">
     </DBStore>
 </EMS>

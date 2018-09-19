@@ -7,6 +7,8 @@ import com.briup.Server.DBStore;
 import com.briup.Server.EnvServer;
 import com.briup.util.BackUp;
 import com.briup.util.Configuration;
+import com.briup.util.ConfigurationAware;
+import com.briup.util.WossModel;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -14,6 +16,9 @@ import org.dom4j.io.SAXReader;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -22,8 +27,9 @@ import java.util.Properties;
 
 public class ConfigurationImpl implements Configuration {
 
+    private Map<String,WossModel> ObjectMap = new HashMap <>();
 
-    public static Element getDom4j (){
+    public ConfigurationImpl() {
         SAXReader saxReader = new SAXReader();
         Document document = null;
         FileInputStream fis = null;
@@ -33,106 +39,54 @@ public class ConfigurationImpl implements Configuration {
             fis = new FileInputStream("/Users/wjh/Desktop/FirstProject/src/main/resources/EMS.xml");
             document = saxReader.read(fis);
             EMS = document.getRootElement();
-        } catch (FileNotFoundException | DocumentException e) {
+
+            List<Element> EMSlist = EMS.elements();
+            for (Element element : EMSlist){
+                //gather -- EnvClient -- EnvServer -- BackUp -- DBStore --
+                String elementName = element.getName();
+                String elementClass = element.attribute("class").getText();
+                WossModel obj = (WossModel) Class.forName(elementClass).newInstance();
+                if (obj instanceof ConfigurationAware){
+                    ((ConfigurationAware) obj).SetConfiguration(this);
+                }
+                // 遍历子节点，为应该赋值的变量赋值
+                List<Element> ChildEMSList = element.elements();
+//                System.out.println(ChildEMSList.size());
+//                System.out.println(obj);
+                Properties properties =new Properties();
+                for (Element element1 : ChildEMSList){
+//                    System.out.println(element.getName() +"--"+element1.getName()+"--"+element1.getText());
+                    properties.setProperty(element1.getName(),element1.getText());
+                }
+                obj.init(properties);
+                ObjectMap.put(elementName,obj);
+            }
+        } catch (FileNotFoundException | DocumentException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }finally {
             IOUtil.close(fis);
         }
-        return EMS;
+
     }
 
     @Override
     public Gather getGather() {
-        Element EMS = getDom4j();
-        Gather gatherObj = null;
-        // 获取二级标签结点
-        Element gather = EMS.element("gather");
-        String gatherClass = gather.attribute("class").getValue();
-        String logFile = gather.element("logFile").getText();
-        String positionFile = gather.element("positionFile").getText();
-
-        try {
-            gatherObj= (Gather) Class.forName(gatherClass).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty("logFile",logFile);
-        properties.setProperty("positionFile",positionFile);
-        gatherObj.init(properties);
-
-        return  gatherObj;
+        return (Gather) ObjectMap.get("gather");
     }
 
     @Override
     public EnvClient getClient() {
-        Element EMS = getDom4j();
-        EnvClient client = null;
-        // 获取二级标签结点
-        Element envclient =  EMS.element("EnvClient");
-        String envclientClass = envclient.attribute("class").getValue();
-        String host = envclient.element("host").getText();
-        String port = envclient.element("port").getText();
-        String path = EMS.element("BackUp").element("BackUppath").getText();
-
-        try {
-            client= (EnvClient) Class.forName(envclientClass).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty("host",host);
-        properties.setProperty("port",port);
-        properties.setProperty("path",path);
-        client.init(properties);
-
-        return client;
+        return (EnvClient) ObjectMap.get("EnvClient");
     }
 
     @Override
     public EnvServer getServer() {
-        Element EMS = getDom4j();
-        EnvServer envServer = null;
-
-        Element EnvServer = EMS.element("EnvServer");
-
-        String EnvServerClass = EnvServer.attribute("class").getValue();
-
-        try {
-            envServer = (EnvServer) Class.forName(EnvServerClass).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        String port = EnvServer.element("port").getText();
-
-//        System.out.println(port);
-
-        Properties properties = new Properties();
-        properties.setProperty("port",port);
-
-        envServer.init(properties);
-
-        return envServer;
+        return (EnvServer) ObjectMap.get("EnvServer");
     }
 
     @Override
     public DBStore getDBStore() {
-        Element EMS = getDom4j();
-        DBStore dbStore = null;
-
-        Element DBStore = EMS.element("DBStore");
-
-        String dbstoreClass = DBStore.attribute("class").getValue();
-
-        try {
-            dbStore = (DBStore) Class.forName(dbstoreClass).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return dbStore;
+        return (DBStore) ObjectMap.get("DBStore");
     }
 
 //    @Override
@@ -142,31 +96,9 @@ public class ConfigurationImpl implements Configuration {
 
     @Override
     public BackUp getBackUp() {
-        Element EMS = getDom4j();
-        BackUp backUp = null;
-
-        Element BackUp = EMS.element("BackUp");
-        String backupClass = BackUp.attribute("class").getValue();
-
-        String BackUppath = BackUp.element("BackUppath").getText();
-
-        try {
-            backUp = (BackUp) Class.forName(backupClass).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty("BackUppath",BackUppath);
-
-        backUp.init(properties);
-
-        return backUp;
+        return (BackUp) ObjectMap.get("BackUp");
     }
 
 
-    public static void main(String[] args) {
-        ConfigurationImpl configuration = new ConfigurationImpl();
-        System.out.println(configuration.getServer());
-    }
+
 }
