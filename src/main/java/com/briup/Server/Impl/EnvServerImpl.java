@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,6 +18,12 @@ import java.util.Properties;
  */
 public class EnvServerImpl implements EnvServer {
 
+    private int port;
+
+    public void init(Properties properties) {
+        port = Integer.parseInt(properties.getProperty("port"));
+    }
+
     /**
      * 服务器接收方法
      */
@@ -26,7 +31,10 @@ public class EnvServerImpl implements EnvServer {
         Socket socket = null;
 
         try {
-            ServerSocket server = new ServerSocket(9999);
+            System.out.println(port);
+//            port = 9999;
+            ServerSocket server = new ServerSocket(port);
+            System.out.println(server);
             while(true){
                 socket = server.accept();
                 new EnvServerThread(socket).start();
@@ -36,10 +44,6 @@ public class EnvServerImpl implements EnvServer {
         }
     }
 
-
-    public void init(Properties properties) {
-
-    }
 }
 
 class EnvServerThread extends Thread{

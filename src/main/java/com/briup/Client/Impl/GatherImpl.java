@@ -23,8 +23,12 @@ public final class GatherImpl implements Gather {
 
     private volatile static long position = 0;
 
+    private String logFile;
+    private String positionFileAttr;
 
     public void init(Properties properties) {
+        logFile = properties.getProperty("logFile");
+        positionFileAttr = properties.getProperty("positionFile");
     }
 
     public static void main(String[] args) {
@@ -44,7 +48,7 @@ public final class GatherImpl implements Gather {
         try {
             // 读取 properties 文件并从中读取出上一次文件读取的位置F:ilePostion
             Properties properties = new Properties();
-            File positionFile = new File("/Users/wjh/Desktop/FirstProject/src/main/resources/FilePostion.properties");
+            File positionFile = new File(positionFileAttr);
             if (!positionFile.exists()){
                 positionFile.createNewFile();
             }
@@ -52,7 +56,7 @@ public final class GatherImpl implements Gather {
             String FilePostion = properties.getProperty("FilePostion");
 
 
-            File file = new File("/Users/wjh/Desktop/FirstProject/src/radwtmp");
+            File file = new File(logFile);
 //            long FilePotionLong = Long.parseLong(FilePostion);
 
             // 如果文件不存在，就新建一个新的文件

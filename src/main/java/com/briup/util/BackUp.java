@@ -14,9 +14,8 @@ public interface BackUp extends WossModel{
     /**
      * 将集合保存到文件中
      * @param coll 需要备份的集合
-     * @param path 备份的路径
      */
-    void storeEnvs(Collection<Environment> coll , String path);
+    void storeEnvs(Collection<Environment> coll );
 
 
     /**

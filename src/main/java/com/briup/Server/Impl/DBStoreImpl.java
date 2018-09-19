@@ -21,7 +21,10 @@ import java.util.Properties;
  */
 public class DBStoreImpl implements DBStore {
 
+    @Override
+    public void init(Properties properties) {
 
+    }
     /**
      * 拼接字符串 sql，并将其写入数据库
      * @param col
@@ -125,9 +128,7 @@ public class DBStoreImpl implements DBStore {
         }
     }
 
-    public void init(Properties properties) {
 
-    }
 
     public static void main(String[] args) {
 //        DropEvnDB();
