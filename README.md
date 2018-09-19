@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-#信息自动化采集后入库项目
-The project of warehousing after information automatic collection
 
-采集模块 --> 信息传递模块 --> 入库模块 gather --> sendMessage --> InDatabase
-=======
 # 信息自动化采集后入库项目
 The project of warehousing after information automatic collection
 
@@ -22,4 +17,3 @@ driverClassName=#yourdriver
 url=#yoururl
 username=#yourusername
 password=#yousrpassword
->>>>>>> b96f52f8515cffd38ba12ab61a8c1628affd810d
