@@ -77,18 +77,7 @@ public class DBStoreImpl implements DBStore {
             }
             ps.executeBatch();
         } catch (Exception e){
-//            try {
-//                BackUpImpl backUp = new BackUpImpl();
-//                String path = "/Users/wjh/Desktop/FirstProject/src/BackUptmp";
-//                File file = new File(path);
-//                if (!file.exists()){
-//                    file.createNewFile();
-//                }
-//                backUp.storeEnvs(col,path);
-//            } catch (IOException e1) {
-//                e1.printStackTrace();
-//            }
-            e.printStackTrace();
+             e.printStackTrace();
         } finally {
             try {
                 if (connection != null){

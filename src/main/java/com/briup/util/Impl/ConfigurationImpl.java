@@ -27,8 +27,12 @@ import java.util.Properties;
 
 public class ConfigurationImpl implements Configuration {
 
+    // 使用 Map 集合来存放 模块名-对象
     private Map<String,WossModel> ObjectMap = new HashMap <>();
 
+    /**
+     * 通过构造器来对 Map 集合进行填充，并对其模块内的变量进行赋值
+     */
     public ConfigurationImpl() {
         SAXReader saxReader = new SAXReader();
         Document document = null;
@@ -51,13 +55,11 @@ public class ConfigurationImpl implements Configuration {
                 }
                 // 遍历子节点，为应该赋值的变量赋值
                 List<Element> ChildEMSList = element.elements();
-//                System.out.println(ChildEMSList.size());
-//                System.out.println(obj);
                 Properties properties =new Properties();
                 for (Element element1 : ChildEMSList){
-//                    System.out.println(element.getName() +"--"+element1.getName()+"--"+element1.getText());
                     properties.setProperty(element1.getName(),element1.getText());
                 }
+                // 调用其 init 方法，对变量进行赋值
                 obj.init(properties);
                 ObjectMap.put(elementName,obj);
             }

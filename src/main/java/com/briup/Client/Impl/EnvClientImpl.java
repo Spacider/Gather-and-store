@@ -3,6 +3,8 @@ package com.briup.Client.Impl;
 import com.briup.Bean.Environment;
 import com.briup.Client.EnvClient;
 import com.briup.util.BackUp;
+import com.briup.util.Configuration;
+import com.briup.util.ConfigurationAware;
 import com.briup.util.Impl.BackUpImpl;
 import com.briup.util.Impl.ConfigurationImpl;
 import com.briup.util.Impl.IOUtil;
@@ -17,17 +19,23 @@ import java.util.Properties;
 /**
  * 客户端模块实现
  */
-public class EnvClientImpl implements EnvClient {
+public class EnvClientImpl implements EnvClient , ConfigurationAware {
 
     private String host;
     private int port;
     private String path;
+    private Configuration configuration;
 
     @Override
     public void init(Properties properties) {
         host = properties.getProperty("host");
         port = Integer.parseInt(properties.getProperty("port"));
         path = properties.getProperty("path");
+    }
+
+    @Override
+    public void SetConfiguration(Configuration conf) {
+        this.configuration = conf;
     }
 
     /**
@@ -39,14 +47,15 @@ public class EnvClientImpl implements EnvClient {
         OutputStream os = null;
         Socket socket = null;
         ObjectOutputStream oos=  null;
-        ConfigurationImpl configuration = new ConfigurationImpl();
-        BackUp backUp = configuration.getBackUp();
         File file= null;
 
         try {
             file = new File(path);
             if ( file.exists() ){
-                col.addAll(backUp.loadEnvs());
+                Collection<Environment> collection=configuration.getBackUp().loadEnvs();
+                if (collection != null) {
+                    col.addAll(collection);
+                }
                 file.delete();
             }
 
@@ -64,10 +73,11 @@ public class EnvClientImpl implements EnvClient {
 
         } catch (Exception e) {
             e.printStackTrace();
-            backUp.storeEnvs(col);
+            configuration.getBackUp().storeEnvs(col);
         } finally {
             IOUtil.close(os,socket,oos);
         }
     }
+
 
 }
