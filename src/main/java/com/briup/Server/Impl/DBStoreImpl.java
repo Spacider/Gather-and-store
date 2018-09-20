@@ -3,7 +3,12 @@ package com.briup.Server.Impl;
 import com.briup.Bean.Environment;
 import com.briup.Server.DBStore;
 import com.briup.Server.helper.DBhelper;
+import com.briup.util.Configuration;
+import com.briup.util.ConfigurationAware;
 import com.briup.util.Impl.BackUpImpl;
+import com.briup.util.Impl.LogImpl;
+import com.briup.util.Log;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,14 +24,23 @@ import java.util.Properties;
 /**
  * 入库模块实现
  */
-public class DBStoreImpl implements DBStore {
+public class DBStoreImpl implements DBStore , ConfigurationAware {
 
     private int count =1;
+    private Log logger;
+    private Configuration configuration;
 
     @Override
     public void init(Properties properties) {
 
     }
+
+    @Override
+    public void SetConfiguration(Configuration conf) {
+        this.configuration = conf;
+        logger = configuration.getLog();
+    }
+
     /**
      * 拼接字符串 sql，并将其写入数据库
      * @param col
@@ -36,7 +50,7 @@ public class DBStoreImpl implements DBStore {
         PreparedStatement ps = null;
 
 
-        System.out.println(col.size());
+//        System.out.println(col.size());
         try {
             for (Environment environment : col) {
                 DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
@@ -50,8 +64,6 @@ public class DBStoreImpl implements DBStore {
                 // 拼接 sql 语句
                 String sql = "insert into T_DETAIL_" + day
                         + " values(?,?,?,?,?,?,?,?,?,?)";
-//                System.out.println(sql);
-//            DBhelper.InsertIntoDB(sql, environment);
 
                 ps = connection.prepareStatement(sql);
 
@@ -67,17 +79,15 @@ public class DBStoreImpl implements DBStore {
                 ps.setTimestamp(10,environment.getGather_date());
                 ps.addBatch();
 
-                System.out.println("count:" + count);
                 if ( count % 100 == 0 ) {
                     ps.executeBatch();
-                    System.out.println("插入数据库成功：" + count + "数据");
-//                ps.execute();
+                    logger.info("插入数据库成功：" + count + "数据");
                 }
                 count ++;
             }
             ps.executeBatch();
         } catch (Exception e){
-             e.printStackTrace();
+             logger.error("插入数据库失败");
         } finally {
             try {
                 if (connection != null){
@@ -133,4 +143,6 @@ public class DBStoreImpl implements DBStore {
 //        CreateEvnDB();
 
     }
+
+
 }

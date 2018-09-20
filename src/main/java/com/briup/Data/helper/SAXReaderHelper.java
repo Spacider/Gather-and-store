@@ -2,6 +2,7 @@ package com.briup.Data.helper;
 
 import com.briup.Bean.Environment;
 import com.briup.util.Impl.IOUtil;
+import com.briup.util.Impl.LogImpl;
 import oracle.sql.NUMBER;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -14,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class SAXReaderHelper {
+
+    private static final LogImpl log = new LogImpl();
+
     /**
      * 将获取到数据写入到日志文件中
      * @param Message
@@ -50,7 +54,8 @@ public final class SAXReaderHelper {
             sb.append(new Timestamp(System.currentTimeMillis()));
             sb.append("\r\n");
 
-            System.out.println(sb);
+
+            log.debug("从树莓派得到数据:"+sb);
 
             // 运用文件输出流将文件输出
             File file = new File("/Users/wjh/Desktop/FirstProject/src/radwtmp");
@@ -61,12 +66,10 @@ public final class SAXReaderHelper {
             fos.write(sb.toString().getBytes());
             fos.flush();
 
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            log.info("树莓派数据写入文件成功");
+
+        } catch (Exception e) {
+            log.error("树莓派数据写入文件失败");
         } finally {
             IOUtil.close(bais,fos);
         }
@@ -98,18 +101,15 @@ public final class SAXReaderHelper {
             if (SensorAddress.equals("16")){
                 str = "5d606f7802";
                 BackStr = getBakXml(str);
-//                System.out.println("温度湿度");
             }else if (SensorAddress.equals("256")){
                 str = "5d6002";
                 BackStr = getBakXml(str);
-//                System.out.println("光照");
             }else if (SensorAddress.equals("1280")){
                 str = "5d6002";
                 BackStr = getBakXml(str);
-//                System.out.println("二氧化碳");
             }
         } catch (DocumentException e) {
-            e.printStackTrace();
+            log.error("树莓派返回 XML 失败");
         } finally {
             IOUtil.close(bais);
         }

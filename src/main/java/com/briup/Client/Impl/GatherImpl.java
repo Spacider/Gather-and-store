@@ -2,7 +2,11 @@ package com.briup.Client.Impl;
 
 import com.briup.Bean.Environment;
 import com.briup.Client.Gather;
+import com.briup.util.Configuration;
+import com.briup.util.ConfigurationAware;
 import com.briup.util.Impl.IOUtil;
+import com.briup.util.Impl.LogImpl;
+import com.briup.util.Log;
 
 import java.io.*;
 import java.sql.Timestamp;
@@ -15,11 +19,12 @@ import java.util.*;
  * 采集模块实现
  * 从 radwtmp 文件中取出数据并封装对象，装入 list 集合并返回给数据库入库模块使用
  */
-public final class GatherImpl implements Gather {
+public final class GatherImpl implements Gather , ConfigurationAware {
 
-//    Logger LOGGER = Logger.getLogger(GatherImpl.class);
-
+    private Configuration configuration ;
     private static List<Environment> environmentList = new ArrayList <>() ;
+
+    private LogImpl logger = null;
 
     private volatile static long position = 0;
 
@@ -29,6 +34,12 @@ public final class GatherImpl implements Gather {
     public void init(Properties properties) {
         logFile = properties.getProperty("logFile");
         positionFileAttr = properties.getProperty("positionFile");
+    }
+
+    @Override
+    public void SetConfiguration(Configuration conf) {
+        this.configuration = conf;
+        logger = (LogImpl) configuration.getLog();
     }
 
     public static void main(String[] args) {
@@ -46,6 +57,7 @@ public final class GatherImpl implements Gather {
         PrintWriter pw = null;
 
         try {
+
             // 读取 properties 文件并从中读取出上一次文件读取的位置F:ilePostion
             Properties properties = new Properties();
             File positionFile = new File(positionFileAttr);
@@ -77,22 +89,22 @@ public final class GatherImpl implements Gather {
 
                 position = getPostion(raf);
 
-                System.out.println("position : " + position);
+//                System.out.println("position : " + position);
+
+                logger.info("记录文件 position:" +position);
                 // 将最后的位数写入文件
                 properties.setProperty("FilePostion" , position+"");
                 pw = new PrintWriter(positionFile);
                 properties.store(pw,null);
 
-                for (Environment environment : environmentList) {
-                    System.out.println(environment);
-                }
+//                for (Environment environment : environmentList) {
+//                    System.out.println(environment);
+//                }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("从文件中采集数据失败" +e);
         } finally {
-            IOUtil.close(raf,br);
+            IOUtil.close(raf);
         }
 
         List<Environment> environmentList1 = new LinkedList <>(environmentList);
@@ -120,8 +132,9 @@ public final class GatherImpl implements Gather {
      * 根据所传入的拆分后的字符串来生成新的对象并返回
      * @param stringList 根据 radWtmp 拆分的字符串
      */
-    private static void getenv(String[] stringList){
-        System.out.println(Arrays.toString(stringList));
+    private void getenv(String[] stringList){
+
+//        System.out.println(Arrays.toString(stringList));
         //   [100|101|2|16|1|3|5d606f7802|1|2018-09-15 11:17:13.526]
         String sensorAddress = stringList[3];
         int FinalDate = 0;
@@ -130,7 +143,8 @@ public final class GatherImpl implements Gather {
 
         if (sensorAddress.equals("16")) {
             if (stringList[6].length() != 10){
-                System.out.println("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
+//                System.out.println("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
+                logger.warn("得到的数据为脏数据, 温度湿度错误数据:" + stringList[6]);
             }else {
                 /**
                  * 温度􏲅􏲆:value(int) float Temperature = ((float)value*0.00268127)- 46.85;
@@ -147,18 +161,21 @@ public final class GatherImpl implements Gather {
             }
         }else if (sensorAddress.equals("256")){
             if (stringList[6].length() != 6) {
-                System.out.println("得到的数据为脏数据, 光照错误数据:" + stringList[6]);
+//                System.out.println("得到的数据为脏数据, 光照错误数据:" + stringList[6]);
+                logger.warn("得到的数据为脏数据, 光照错误数据:" + stringList[6]);
             }else{
                 environmentList.add(SetNameAndData(stringList, "光照强度", FinalDate));
             }
         }else if (sensorAddress.equals("1280")){
             if (stringList[6].length() != 6) {
-                System.out.println("得到的数据为脏数据, 二氧化碳错误数据:" + stringList[6]);
+                logger.warn("得到的数据为脏数据, 二氧化碳错误数据:" + stringList[6]);
+//                System.out.println("得到的数据为脏数据, 二氧化碳错误数据:" + stringList[6]);
             }else{
                 environmentList.add(SetNameAndData(stringList, "二氧化碳", FinalDate));
             }
         }else{
-            System.out.println("得到的数据错误");
+            logger.error("得到的数据错误");
+//            System.out.println("得到的数据错误");
         }
     }
 
@@ -169,7 +186,7 @@ public final class GatherImpl implements Gather {
      * @param Data
      * @return
      */
-    private final static Environment SetNameAndData(String[] stringList, String name ,float Data){
+    private Environment SetNameAndData(String[] stringList, String name ,float Data){
         String sensorAddress = stringList[3];
         Environment envir = new Environment();
         try {
@@ -186,10 +203,11 @@ public final class GatherImpl implements Gather {
             envir.setName(name);
             envir.setData(Data);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error("设置名字和数据失败");
         }
 
         return envir;
     }
+
 
 }

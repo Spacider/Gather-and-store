@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <EMS>
+    <Log class="com.briup.util.Impl.LogImpl">
+    </Log>
     <gather class="com.briup.Client.Impl.GatherImpl">
         <logFile>/Users/wjh/Desktop/FirstProject/src/radwtmp</logFile>
         <positionFile>/Users/wjh/Desktop/FirstProject/src/main/resources/FilePostion.properties</positionFile>

@@ -7,6 +7,7 @@ import com.briup.util.Configuration;
 import com.briup.util.ConfigurationAware;
 import com.briup.util.Impl.ConfigurationImpl;
 import com.briup.util.Impl.IOUtil;
+import com.briup.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +25,7 @@ public class EnvServerImpl implements EnvServer ,ConfigurationAware{
 
     private int port;
     private Configuration  configuration;
+    private Log logger;
 
     public void init(Properties properties) {
         port = Integer.parseInt(properties.getProperty("port"));
@@ -31,6 +33,7 @@ public class EnvServerImpl implements EnvServer ,ConfigurationAware{
 
     public void SetConfiguration(Configuration conf) {
         this.configuration =conf;
+        logger = conf.getLog();
     }
 
 
@@ -41,12 +44,14 @@ public class EnvServerImpl implements EnvServer ,ConfigurationAware{
         Socket socket = null;
 
         try {
-            System.out.println(port);
+//            System.out.println(port);
             ServerSocket server = new ServerSocket(port);
-            System.out.println(server);
+//            System.out.println(server);
+            logger.info("server 启动"+ server);
             while(true){
                 socket = server.accept();
                 new EnvServerThread(socket,configuration.getDBStore()).start();
+                logger.info("服务器端开启一个socket:" + socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,11 +83,9 @@ class EnvServerThread extends Thread {
 
                 List <Environment> environmentList = (List <Environment>) ois.readObject();
 
-                System.out.println(environmentList);
+//                System.out.println(environmentList);
 
                 // 数据库入库操作
-//                ConfigurationImpl configuration = new ConfigurationImpl();
-//                dbStore  = configuration.getDBStore();
                 dbStore.saveEnvToDB(environmentList);
 
 

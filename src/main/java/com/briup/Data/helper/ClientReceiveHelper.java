@@ -1,6 +1,7 @@
 package com.briup.Data.helper;
 
 import com.briup.util.Impl.IOUtil;
+import com.briup.util.Impl.LogImpl;
 
 import java.io.*;
 import java.net.Socket;
@@ -10,6 +11,7 @@ import java.net.Socket;
  */
 public final class ClientReceiveHelper {
 
+    private final static LogImpl logger = new LogImpl();
     /**
      * 拼装发送的 XML 文件
      * @param SensorAddress
@@ -45,7 +47,8 @@ public final class ClientReceiveHelper {
             // 填入树莓派的 host 和 port
 //            socket = new Socket("192.168.1.7", 10000);
             socket = new Socket("127.0.0.1", 8888);
-            System.out.println(socket);
+            logger.info(socket.toString()+"正在接收树莓派传输的数据");
+//            System.out.println(socket);
             synchronized (socket) {
                 os = socket.getOutputStream();
                 pw = new PrintWriter(os);
@@ -70,7 +73,7 @@ public final class ClientReceiveHelper {
                 SAXReaderHelper.InLogFile(sb.toString(), SensorAddress, counter + "");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("断开连接,无法接收树莓派传输的数据" + e);
         } finally {
             IOUtil.close(br,is,pw,os,socket);
         }

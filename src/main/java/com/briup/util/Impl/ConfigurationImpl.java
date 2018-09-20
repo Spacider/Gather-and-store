@@ -5,10 +5,7 @@ import com.briup.Client.EnvClient;
 import com.briup.Client.Gather;
 import com.briup.Server.DBStore;
 import com.briup.Server.EnvServer;
-import com.briup.util.BackUp;
-import com.briup.util.Configuration;
-import com.briup.util.ConfigurationAware;
-import com.briup.util.WossModel;
+import com.briup.util.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -61,6 +58,7 @@ public class ConfigurationImpl implements Configuration {
                 }
                 // 调用其 init 方法，对变量进行赋值
                 obj.init(properties);
+
                 ObjectMap.put(elementName,obj);
             }
         } catch (FileNotFoundException | DocumentException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
@@ -68,6 +66,12 @@ public class ConfigurationImpl implements Configuration {
         }finally {
             IOUtil.close(fis);
         }
+
+    }
+
+    public static void main(String[] args) {
+        Configuration configuration = new ConfigurationImpl();
+        System.out.println(configuration.getLog());
 
     }
 
@@ -91,10 +95,10 @@ public class ConfigurationImpl implements Configuration {
         return (DBStore) ObjectMap.get("DBStore");
     }
 
-//    @Override
-//    public Log getLog() {
-//        return new LogImpl();
-//    }
+    @Override
+    public Log getLog() {
+        return (Log) ObjectMap.get("Log");
+    }
 
     @Override
     public BackUp getBackUp() {

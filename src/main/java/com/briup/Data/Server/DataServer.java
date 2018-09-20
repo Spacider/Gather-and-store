@@ -3,6 +3,7 @@ package com.briup.Data.Server;
 import com.briup.Bean.Environment;
 import com.briup.Data.helper.SAXReaderHelper;
 import com.briup.util.Impl.IOUtil;
+import com.briup.util.Impl.LogImpl;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -44,6 +45,7 @@ class ServerThread extends Thread{
 
     private Socket socket;
 
+
     public ServerThread(Socket socket){
         this.socket = socket;
     }
@@ -74,7 +76,7 @@ class ServerThread extends Thread{
                 String BackStr = SAXReaderHelper.BackXml(sb.toString());
 
                 System.out.println(BackStr);
-
+//                logger.info(BackStr);
                 os = socket.getOutputStream();
                 pw = new PrintWriter(os);
                 pw.write(BackStr.toCharArray());

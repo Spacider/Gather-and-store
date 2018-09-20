@@ -1,16 +1,24 @@
 package com.briup.util.Impl;
 
 import com.briup.Bean.Environment;
-import com.briup.util.BackUp;
-import com.briup.util.WossModel;
+import com.briup.util.*;
 
 import java.io.*;
 import java.util.Collection;
 import java.util.Properties;
 
-public class BackUpImpl implements BackUp, WossModel {
+public class BackUpImpl implements BackUp , ConfigurationAware {
 
     private  String path;
+    private Configuration configuration;
+    private Log log;
+
+
+    @Override
+    public void SetConfiguration(Configuration conf) {
+        this.configuration = conf;
+        log = conf.getLog();
+    }
 
     @Override
     public void init(Properties properties) {
@@ -30,7 +38,8 @@ public class BackUpImpl implements BackUp, WossModel {
             oos = new ObjectOutputStream(fos);
             oos.writeObject(coll);
             oos.flush();
-            System.out.println("已经存入备份文件中 ,path:" +path);
+//            System.out.println("已经存入备份文件中 ,path:" +path);
+            log.info("已经存入备份文件中 ,path:" +path);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -50,13 +59,15 @@ public class BackUpImpl implements BackUp, WossModel {
 
             backupObject = ois.readObject();
 
-            System.out.println("已经从 path:" + path + "取出备份文件");
+//            System.out.println("已经从 path:" + path + "取出备份文件");
 
+            log.info("从 path:" + path + "取出备份文件中...");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return (Collection <Environment>) backupObject;
     }
+
 
 
 }

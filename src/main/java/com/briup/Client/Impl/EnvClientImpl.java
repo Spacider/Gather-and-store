@@ -8,6 +8,8 @@ import com.briup.util.ConfigurationAware;
 import com.briup.util.Impl.BackUpImpl;
 import com.briup.util.Impl.ConfigurationImpl;
 import com.briup.util.Impl.IOUtil;
+import com.briup.util.Impl.LogImpl;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.ObjectOutputStream;
@@ -25,6 +27,8 @@ public class EnvClientImpl implements EnvClient , ConfigurationAware {
     private int port;
     private String path;
     private Configuration configuration;
+    private LogImpl logger;
+
 
     @Override
     public void init(Properties properties) {
@@ -36,6 +40,7 @@ public class EnvClientImpl implements EnvClient , ConfigurationAware {
     @Override
     public void SetConfiguration(Configuration conf) {
         this.configuration = conf;
+        logger = (LogImpl) conf.getLog();
     }
 
     /**
@@ -57,6 +62,7 @@ public class EnvClientImpl implements EnvClient , ConfigurationAware {
                     col.addAll(collection);
                 }
                 file.delete();
+                logger.warn("备份的文件已经被提取");
             }
 
             socket = new Socket(host,port);
@@ -64,15 +70,13 @@ public class EnvClientImpl implements EnvClient , ConfigurationAware {
             oos = new ObjectOutputStream(os);
 
             // 运用对象流把生成的对象发给 Server 端
-            System.out.println(col);
+//            System.out.println(col);
             oos.writeObject(col);
 
-            // 添加 null 为结尾，防止爆出 EOFException
-//            oos.writeObject(null);
             oos.flush();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("向服务器发送 list 失败");
             configuration.getBackUp().storeEnvs(col);
         } finally {
             IOUtil.close(os,socket,oos);
