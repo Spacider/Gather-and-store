@@ -2,7 +2,7 @@
 # 信息自动化采集后入库项目
 The project of warehousing after information automatic 
 
-代码说明及讲解请移步：https://blog.csdn.net/qq_37163479
+代码说明及讲解请移步：https://blog.csdn.net/qq_37163479/article/details/83021960
 
 采集模块 --> 信息传递模块  --> 入库模块
 gather  --> sendMessage  --> InDatabase
